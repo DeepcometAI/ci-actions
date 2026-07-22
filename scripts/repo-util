@@ -131,12 +131,23 @@ def show_all_hashes():
     show_project_hashes(get_projects())
 
 
+# Map renamed-fork repo names (as they appear in GITHUB_REPOSITORY) to the
+# project name the upstream seL4 manifests actually use. Add an entry here
+# any time a fork's GitHub repo name no longer matches its manifest project
+# name (e.g. our kernel fork is "perception", but every seL4 manifest still
+# calls the kernel project "seL4").
+ALIASES = {
+    'perception': 'sel4',
+}
+
+
 def path_of(gh_repo: str, projects: dict) -> str:
     """Get the path of a given repo in projects dict.
     Accepts GITHUB_REPOSITORY-style references like seL4/seL4 (for repo "seL4")"""
     repo = gh_repo.split('/')[-1]
     # remove optional -priv suffix for private forks
     repo = removesuffix(repo.lower(), '-priv')
+    repo = ALIASES.get(repo, repo)
     return projects.get(repo, (None, None))[0]
 
 
