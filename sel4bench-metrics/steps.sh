@@ -30,14 +30,14 @@ echo "::endgroup::"
 echo "::group::Reading manifest"
 MANIFEST="${RUNNER_TEMP}/default.xml"
 curl -sSfL \
-  "https://raw.githubusercontent.com/seL4/sel4bench-manifest/${INPUT_MANIFEST_SHA}/default.xml" \
+  "https://raw.githubusercontent.com/DeepcometAI/sel4bench-manifest/${INPUT_MANIFEST_SHA}/default.xml" \
   -o "${MANIFEST}"
 
 manifest_revision() {
   xmllint --xpath "string(//project[@name='$1']/@revision)" "${MANIFEST}"
 }
 
-export INPUT_SEL4_SHA=$(manifest_revision seL4.git)
+export INPUT_SEL4_SHA=$(manifest_revision perception.git)
 export INPUT_SEL4BENCH_SHA=$(manifest_revision sel4bench.git)
 echo "::endgroup::"
 
