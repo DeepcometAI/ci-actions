@@ -1,0 +1,69 @@
+# Copyright 2026, DeepcometAI
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+# Builds and pushes the docker-based ci-actions images to GHCR, natively on
+# GitHub's x86-64 runners. Triggered manually; run once after patching
+# scripts/repo-util (or any other shared script/action), and again any time
+# one of the built actions changes.
+
+name: Deploy Images
+
+on:
+  workflow_dispatch:
+    inputs:
+      images:
+        description: 'Comma-separated action dirs to build (or "all")'
+        required: false
+        default: 'all'
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: deepcometai
+
+jobs:
+  resolve-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      images: ${{ steps.set.outputs.images }}
+    steps:
+    - id: set
+      run: |
+        ALL='["cparser-run","sel4test-sim","sel4test-hw","sel4bench","preprocess"]'
+        INPUT="${{ github.event.inputs.images }}"
+        if [ -z "$INPUT" ] || [ "$INPUT" = "all" ]; then
+          echo "images=${ALL}" >> "$GITHUB_OUTPUT"
+        else
+          JSON=$(echo "$INPUT" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip().split(',')))")
+          echo "images=${JSON}" >> "$GITHUB_OUTPUT"
+        fi
+
+  build:
+    needs: resolve-matrix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJson(needs.resolve-matrix.outputs.images) }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: docker/setup-buildx-action@v4
+
+    - uses: docker/login-action@v4
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: ${{ matrix.image }}/Dockerfile
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}:latest
+          ${{ env.REGISTRY }}/${{ env.OWNER }}/${{ matrix.image }}:${{ github.sha }}
