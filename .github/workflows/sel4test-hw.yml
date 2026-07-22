@@ -38,7 +38,7 @@ jobs:
       xml: ${{ steps.repo.outputs.xml }}
     steps:
     - id: repo
-      uses: seL4/ci-actions/repo-checkout@master
+      uses: DeepcometAI/ci-actions/repo-checkout@master
       with:
         manifest_repo: sel4test-manifest
         manifest: master.xml
@@ -51,7 +51,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
     - id: matrix
-      uses: seL4/ci-actions/sel4test-hw-matrix@master
+      uses: DeepcometAI/ci-actions/sel4test-hw-matrix@master
       with:
         matrix: build
 
@@ -69,7 +69,7 @@ jobs:
       matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
     steps:
     - name: Build
-      uses: seL4/ci-actions/sel4test-hw@master
+      uses: DeepcometAI/ci-actions/sel4test-hw@master
       with:
         xml: ${{ needs.code.outputs.xml }}
         march: ${{ matrix.march }}
@@ -94,7 +94,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
     - id: matrix
-      uses: seL4/ci-actions/sel4test-hw-matrix@master
+      uses: DeepcometAI/ci-actions/sel4test-hw-matrix@master
 
   hw-run:
     name: HW Run
@@ -121,7 +121,7 @@ jobs:
         with:
           name: images-sel4test-${{ matrix.march }}-${{ matrix.compiler }}${{ matrix.subgroup && format('-{0}', matrix.subgroup) }}
       - name: Run
-        uses: seL4/ci-actions/sel4test-hw-run@master
+        uses: DeepcometAI/ci-actions/sel4test-hw-run@master
         with:
           platform: ${{ matrix.platform }}
           compiler: ${{ matrix.compiler }}

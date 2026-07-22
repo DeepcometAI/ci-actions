@@ -45,7 +45,7 @@ jobs:
       xml: ${{ steps.repo.outputs.xml }}
     steps:
     - id: repo
-      uses: seL4/ci-actions/repo-checkout@master
+      uses: DeepcometAI/ci-actions/repo-checkout@master
       with:
         manifest_repo: sel4bench-manifest
         manifest: master.xml
@@ -66,7 +66,7 @@ jobs:
         march: [armv7a, armv8a, nehalem, rv64imac]
     steps:
     - name: Build
-      uses: seL4/ci-actions/sel4bench@master
+      uses: DeepcometAI/ci-actions/sel4bench@master
       with:
         xml: ${{ needs.code.outputs.xml }}
         march: ${{ matrix.march }}
@@ -116,7 +116,7 @@ jobs:
           path: machine_queue
       - name: Get march
         id: plat
-        uses: seL4/ci-actions/march-of-platform@master
+        uses: DeepcometAI/ci-actions/march-of-platform@master
         with:
           platform: ${{ matrix.platform }}
       - name: Download image
@@ -124,7 +124,7 @@ jobs:
         with:
           name: images-sel4bench-${{ steps.plat.outputs.march }}
       - name: Run
-        uses: seL4/ci-actions/sel4bench-hw@master
+        uses: DeepcometAI/ci-actions/sel4bench-hw@master
         with:
           platform: ${{ matrix.platform }}
           req: ${{ matrix.req }}

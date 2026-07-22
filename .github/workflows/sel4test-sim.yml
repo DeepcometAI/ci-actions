@@ -23,7 +23,7 @@ jobs:
       group: ${{ github.workflow }}-sel4sim-pr-${{ github.event.number }}-${{ strategy.job-index }}
       cancel-in-progress: true
     steps:
-    - uses: seL4/ci-actions/sel4test-sim@master
+    - uses: DeepcometAI/ci-actions/sel4test-sim@master
       with:
         march: ${{ matrix.march }}
         compiler: ${{ matrix.compiler }}
