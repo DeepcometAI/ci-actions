@@ -26,4 +26,4 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://sel4/sel4bench:latest'
+  image: 'docker://ghcr.io/deepcometai/sel4bench:latest'

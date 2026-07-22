@@ -41,4 +41,4 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://sel4/sel4test-hw:latest'
+  image: 'docker://ghcr.io/deepcometai/sel4test-hw:latest'

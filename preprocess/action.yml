@@ -30,4 +30,4 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://sel4/preprocess:latest'
+  image: 'docker://ghcr.io/deepcometai/preprocess:latest'
