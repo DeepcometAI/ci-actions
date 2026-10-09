@@ -49,4 +49,8 @@ then
   fi
 fi
 
-repo-util hashes
+if command -v repo-util >/dev/null 2>&1; then
+    repo-util hashes || true
+else
+    echo "Warning: repo-util unavailable; skipping hash summary" >&2
+fi
