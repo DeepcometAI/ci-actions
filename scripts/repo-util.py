@@ -51,9 +51,8 @@ def add_manifest(projects: dict):
         repo = removesuffix(url.split('/')[-1], '.git')
         projects[repo.lower()] = (manifest_path, repo)
     except Exception:
-        print('Error getting manifest repo. Not a `repo` checkout?', file=sys.stderr)
-        sys.exit(1)
-
+        # Log warning but continue; repo may not be fully initialized yet
+        print('Warning: could not get manifest repo info', file=sys.stderr)
 
 def get_projects() -> dict:
     """Create dict from repo manifest; maps repo name to path."""
@@ -149,7 +148,8 @@ def path_of(gh_repo: str, projects: dict) -> str:
     # remove optional -priv suffix for private forks
     repo = removesuffix(repo.lower(), '-priv')
     repo = ALIASES.get(repo, repo)
-    return projects.get(repo, (None, None))[0]
+    result = projects.get(repo, (None, None))[0]
+    return result if result else ""
 
 
 # main program:
