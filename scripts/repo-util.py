@@ -143,13 +143,23 @@ ALIASES = {
 
 def path_of(gh_repo: str, projects: dict) -> str:
     """Get the path of a given repo in projects dict.
-    Accepts GITHUB_REPOSITORY-style references like seL4/seL4 (for repo "seL4")"""
+    Accepts GITHUB_REPOSITORY-style references like DeepcometAI/perception.
+    Maps fork names (e.g. 'perception') back to their upstream manifest names
+    (e.g. 'sel4') before looking up in projects dict."""
     repo = gh_repo.split('/')[-1]
     # remove optional -priv suffix for private forks
     repo = removesuffix(repo.lower(), '-priv')
-    repo = ALIASES.get(repo, repo)
-    result = projects.get(repo, (None, None))[0]
-    return result if result else ""
+    
+    # Try direct lookup first (for upstream or matching repos)
+    if repo in projects:
+        return projects.get(repo, (None, None))[0]
+    
+    # Then try looking up by alias (e.g. 'perception' fork -> 'sel4' upstream name)
+    aliased_repo = ALIASES.get(repo, repo)
+    if aliased_repo != repo and aliased_repo in projects:
+        return projects.get(aliased_repo, (None, None))[0]
+    
+    return None
 
 
 # main program:
