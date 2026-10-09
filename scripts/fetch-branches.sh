@@ -23,13 +23,13 @@ if [ ! -d "${REPO_ROOT}/.repo/manifests" ]; then
     fi
 fi
 
+export REPO_ROOT
 cd "${REPO_ROOT}"
 
 if [ -z "${INPUT_XML}" ]
 then
-  cd "$(repo-util path "${GITHUB_REPOSITORY}")"
+  export REPO_PROJECT_DIR="$(repo-util path "${GITHUB_REPOSITORY}")"
   fetch-branch.sh
-  cd - >/dev/null
 
   if [ "${GITHUB_EVENT_NAME}" = "pull_request_target" ] ||
      [ "${GITHUB_EVENT_NAME}" = "pull_request" ]
