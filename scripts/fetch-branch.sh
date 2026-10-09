@@ -42,11 +42,16 @@ then
     FETCH=${REF}:${REF}
   fi
 
+  # Get the actual git directory path from repo tool
+  REPO_DIR=$(repo forall -c pwd | head -n 1)
+  
   echo "Fetching ${REF} from ${REPO_PATH}"
-  git fetch -q --depth 1 ${URL} ${FETCH}
-  git checkout -q ${REF}
+  
+  # Use git -C to run git commands in the repo directory
+  git -C "${REPO_DIR}" fetch -q --depth 1 ${URL} ${FETCH}
+  git -C "${REPO_DIR}" checkout -q ${REF}
   if [ -n "${BRANCH_NAME}" ]
   then
-    git checkout -b "${BRANCH_NAME}"
+    git -C "${REPO_DIR}" checkout -b "${BRANCH_NAME}"
   fi
 fi
