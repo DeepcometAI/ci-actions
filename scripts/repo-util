@@ -42,14 +42,14 @@ def removeprefix(string: str, prefix: str) -> str:
 
 def add_manifest(projects: dict):
     """Add the manifest repo itself as a project to the projects dict."""
+    repo_root = os.environ.get("REPO_ROOT", ".")
+    manifest_path = os.path.join(repo_root, ".repo", "manifests")
     try:
-        path = '.repo/manifests'
-        git_cmd = f"git -C {path} config --get remote.origin.url"
-        url = subprocess.check_output(git_cmd.split(' '), text=True).rstrip()
+        git_cmd = ["git", "-C", manifest_path, "config", "--get", "remote.origin.url"]
+        url = subprocess.check_output(git_cmd, text=True).rstrip()
         repo = removesuffix(url.split('/')[-1], '.git')
-        # lower-case name as key to remain case insensitive; store manifest name as value
-        projects[repo.lower()] = (path, repo)
-    except:
+        projects[repo.lower()] = (manifest_path, repo)
+    except Exception:
         print('Error getting manifest repo. Not a `repo` checkout?', file=sys.stderr)
         sys.exit(1)
 
