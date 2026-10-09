@@ -47,7 +47,7 @@ jobs:
     - id: repo
       uses: DeepcometAI/ci-actions/repo-checkout@master
       with:
-        manifest_repo: sel4bench-manifest
+        manifest_repo: DeepcometAI/sel4bench-manifest
         manifest: master.xml
         sha: ${{ github.event.pull_request.head.sha }}
 
