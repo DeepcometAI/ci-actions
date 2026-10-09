@@ -20,6 +20,7 @@ the spelling for the name as value to reflect what is in the manifest.
 
 import subprocess
 import sys
+import os
 
 usage = "repo-util [path <path> | hashes]"
 
