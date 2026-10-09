@@ -13,7 +13,7 @@ set -e
 if [ -z "${INPUT_XML}" ]
 then
   # Only attempt branch fetch if we can reliably locate the repo root and project
-  REPO_ROOT="${REPO_ROOT:-/github/workspace}"
+  REPO_ROOT="${REPO_ROOT:-${GITHUB_WORKSPACE:-/github/workspace}}"
   
   # Verify repo root exists with .repo/manifests
   if [ ! -d "${REPO_ROOT}/.repo/manifests" ]; then
