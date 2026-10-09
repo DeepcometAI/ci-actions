@@ -6,6 +6,9 @@
 
 # Fetches the branch in ${GITHUB_REF} into a repo manifest checkout.
 # Does nothing if INPUT_XML is set, because that means we have already done this.
+#
+# If the repo is checked out via `repo`, the kernel worktree is not a standalone
+# git repository. Use the path returned by repo-util and run git -C there.
 
 set -e
 
@@ -14,6 +17,8 @@ then
 
   # Assumes a repo manifest checkout, and current working dir in the repo
   # to fetch the branch for.
+  # The checkout is repo-managed, so use the actual worktree path instead of
+  # relying on the current directory being a standalone git repo.
 
   REPO_PATH="github.com/${GITHUB_REPOSITORY}.git"
 
@@ -42,16 +47,13 @@ then
     FETCH=${REF}:${REF}
   fi
 
-  # Get the actual git directory path from repo tool
-  REPO_DIR=$(repo forall -c pwd | head -n 1)
-  
+  REPO_DIR=$(repo-util path ${GITHUB_REPOSITORY})
+
   echo "Fetching ${REF} from ${REPO_PATH}"
-  
-  # Use git -C to run git commands in the repo directory
-  git -C "${REPO_DIR}" fetch -q --depth 1 ${URL} ${FETCH}
-  git -C "${REPO_DIR}" checkout -q ${REF}
+  git -C ${REPO_DIR} fetch -q --depth 1 ${URL} ${FETCH}
+  git -C ${REPO_DIR} checkout -q ${REF}
   if [ -n "${BRANCH_NAME}" ]
   then
-    git -C "${REPO_DIR}" checkout -b "${BRANCH_NAME}"
+    git -C ${REPO_DIR} checkout -b "${BRANCH_NAME}"
   fi
 fi
