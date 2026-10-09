@@ -10,32 +10,42 @@
 
 set -e
 
-# Ensure we are in the repo root before calling repo-util
-REPO_ROOT="${REPO_ROOT:-/github/workspace}"
-if [ ! -d "${REPO_ROOT}/.repo/manifests" ]; then
-    if [ -d /workspace/.repo/manifests ]; then
-        REPO_ROOT=/workspace
-    elif [ -d /github/workspace/.repo/manifests ]; then
-        REPO_ROOT=/github/workspace
-    else
-        echo "Error: repo root with .repo/manifests not found" >&2
-        exit 1
-    fi
-fi
-
-export REPO_ROOT
-cd "${REPO_ROOT}"
-
 if [ -z "${INPUT_XML}" ]
 then
-  export REPO_PROJECT_DIR="$(repo-util path "${GITHUB_REPOSITORY}")"
-  fetch-branch.sh
-
-  if [ "${GITHUB_EVENT_NAME}" = "pull_request_target" ] ||
-     [ "${GITHUB_EVENT_NAME}" = "pull_request" ]
-  then
-    export INPUT_EXTRA_REFS="$(get-prs)"
-    fetch-extra-refs.sh
+  # Only attempt branch fetch if we can reliably locate the repo root and project
+  REPO_ROOT="${REPO_ROOT:-/github/workspace}"
+  
+  # Verify repo root exists with .repo/manifests
+  if [ ! -d "${REPO_ROOT}/.repo/manifests" ]; then
+    echo "Warning: repo root with .repo/manifests not found; skipping branch fetch" >&2
+  else
+    (
+      cd "${REPO_ROOT}"
+      
+      # Safely get project directory; skip if it fails
+      REPO_PROJECT_DIR=$(repo-util path "${GITHUB_REPOSITORY}" 2>/dev/null) || {
+        echo "Warning: repo-util failed to resolve project path; skipping branch fetch" >&2
+        exit 0
+      }
+      
+      if [ -z "${REPO_PROJECT_DIR}" ] || [ ! -d "${REPO_PROJECT_DIR}" ]; then
+        echo "Warning: project directory not found; skipping branch fetch" >&2
+        exit 0
+      fi
+      
+      export REPO_PROJECT_DIR
+      fetch-branch.sh || {
+        echo "Warning: branch fetch failed; continuing with sync state" >&2
+        exit 0
+      }
+      
+      if [ "${GITHUB_EVENT_NAME}" = "pull_request_target" ] ||
+         [ "${GITHUB_EVENT_NAME}" = "pull_request" ]
+      then
+        export INPUT_EXTRA_REFS="$(get-prs 2>/dev/null || true)"
+        fetch-extra-refs.sh || true
+      fi
+    ) || true
   fi
 fi
 
