@@ -8,17 +8,15 @@
 # Does nothing if INPUT_XML is set, because that means we have already done this.
 #
 # If the repo is checked out via `repo`, the kernel worktree is not a standalone
-# git repository. Use the path returned by repo-util and run git -C there.
+# git repository. Use REPO_PROJECT_DIR passed from fetch-branches.sh and run git -C there.
 
 set -e
 
 if [ -z "${INPUT_XML}" ]
 then
 
-  # Assumes a repo manifest checkout, and current working dir in the repo
-  # to fetch the branch for.
-  # The checkout is repo-managed, so use the actual worktree path instead of
-  # relying on the current directory being a standalone git repo.
+  # The checkout is repo-managed, so use the actual worktree path (REPO_PROJECT_DIR)
+  # instead of relying on the current directory being a standalone git repo.
 
   REPO_PATH="github.com/${GITHUB_REPOSITORY}.git"
 
@@ -47,13 +45,17 @@ then
     FETCH=${REF}:${REF}
   fi
 
-  REPO_DIR=$(repo-util path ${GITHUB_REPOSITORY})
+  REPO_DIR="${REPO_PROJECT_DIR}"
+  if [ -z "${REPO_DIR}" ]; then
+    echo "Error: REPO_PROJECT_DIR not set" >&2
+    exit 1
+  fi
 
   echo "Fetching ${REF} from ${REPO_PATH}"
-  git -C ${REPO_DIR} fetch -q --depth 1 ${URL} ${FETCH}
-  git -C ${REPO_DIR} checkout -q ${REF}
+  git -C "${REPO_DIR}" fetch -q --depth 1 "${URL}" "${FETCH}"
+  git -C "${REPO_DIR}" checkout -q "${REF}"
   if [ -n "${BRANCH_NAME}" ]
   then
-    git -C ${REPO_DIR} checkout -b "${BRANCH_NAME}"
+    git -C "${REPO_DIR}" checkout -b "${BRANCH_NAME}"
   fi
 fi
