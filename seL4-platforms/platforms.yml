@@ -136,12 +136,9 @@ platforms:
     arch: arm
     modes: [64]
     platform: rockpro64
-    req: [rockpro64a]
+    req: [rockpro64b]
     march: armv8a
     subgroup: 4
-    # no board in machine queue
-    no_hw_test: true
-    microkit_no_hw_test: true
 
   ROCK3B:
     arch: arm
@@ -389,13 +386,10 @@ platforms:
     req: [stm32mp]
     march: armv8a
     subgroup: 5
-    # FIXME: the watchdog timer fires during the test which
-    #        prevents it from completing.
-    # @bruelc from STM32 has said that he is going to implement
-    # a basic watchdog reset so that the tests can complete,
-    # but for now, don't run this on real hardware.
-    # https://github.com/seL4/ci-actions/pull/464#issuecomment-4532798902
-    no_hw_test: true
+    settings:
+      # override the default of 4 for sel4test; ignored in non-SMP builds
+      # if the platform is enabled for other apps this may need manual override
+      NUM_NODES: 2
 
   TK1:
     arch: arm
@@ -457,6 +451,9 @@ platforms:
     subgroup: 5
     # the seL4 foundation has no RPI5 hardware
     no_hw_test: true
+    # cannot be tested
+    microkit_no_hw_test: true
+    microkit_boards: [rpi5b_2gb]
 
   TX1:
     arch: arm
